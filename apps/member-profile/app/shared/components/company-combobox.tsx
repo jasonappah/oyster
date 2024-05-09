@@ -11,7 +11,7 @@ import {
 } from '@oyster/ui';
 
 import { type Company } from '@/member-profile.ui';
-import type { SearchCompaniesResult } from '@/routes/companies';
+import type { SearchCompaniesResult } from '@/routes/companies.search';
 
 type CompanyComboboxProps = FieldProps<Pick<Company, 'crunchbaseId' | 'name'>>;
 
@@ -26,7 +26,7 @@ export function CompanyCombobox({ defaultValue, name }: CompanyComboboxProps) {
     fetcher.submit(
       { search: delayedSearch },
       {
-        action: '/companies',
+        action: '/companies/search',
         method: 'get',
       }
     );

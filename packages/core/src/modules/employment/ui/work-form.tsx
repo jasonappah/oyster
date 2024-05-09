@@ -106,7 +106,7 @@ WorkForm.CompanyField = function CompanyField({
     fetcher.submit(
       { search: delayedSearch },
       {
-        action: '/companies',
+        action: '/companies/search',
         method: 'get',
       }
     );

@@ -5,11 +5,19 @@ import {
   redirect,
 } from '@remix-run/node';
 import { Form as RemixForm, useActionData } from '@remix-run/react';
+import { useState } from 'react';
 
-import { Button, Form, getActionErrors, Modal, validateForm } from '@oyster/ui';
+import {
+  Button,
+  Form,
+  getActionErrors,
+  Modal,
+  Select,
+  validateForm,
+} from '@oyster/ui';
 
 import { uploadJobOffer } from '@/member-profile.server';
-import { UploadJobOfferInput } from '@/member-profile.ui';
+import { EmploymentType, UploadJobOfferInput } from '@/member-profile.ui';
 import { Route } from '@/shared/constants';
 import {
   commitSession,
@@ -67,11 +75,38 @@ export default function AddJobOfferModal() {
   );
 }
 
+const keys = UploadJobOfferInput.keyof().enum;
+
 function AddJobOfferForm() {
-  const { error } = getActionErrors(useActionData<typeof action>());
+  const { error, errors } = getActionErrors(useActionData<typeof action>());
+
+  const [isInternship, setIsInternship] = useState<boolean | null>(null);
 
   return (
     <RemixForm className="form" method="post">
+      <Form.Field
+        error={errors.employmentType}
+        label="Employment Type"
+        labelFor={keys.employmentType}
+        required
+      >
+        <Select
+          id={keys.employmentType}
+          name={keys.employmentType}
+          onChange={(e) => {
+            setIsInternship(
+              e.currentTarget.value === EmploymentType.INTERNSHIP
+            );
+          }}
+          required
+        >
+          <option value={EmploymentType.INTERNSHIP}>Internship</option>
+          <option value={EmploymentType.FULL_TIME}>Full-Time</option>
+        </Select>
+      </Form.Field>
+
+      {isInternship && <></>}
+
       <Form.ErrorMessage>{error}</Form.ErrorMessage>
 
       <Button.Group>
