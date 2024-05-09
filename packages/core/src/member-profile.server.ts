@@ -25,6 +25,7 @@ export { searchCrunchbaseOrganizations } from './modules/employment/queries/sear
 export { addWorkExperience } from './modules/employment/use-cases/add-work-experience';
 export { deleteWorkExperience } from './modules/employment/use-cases/delete-work-experience';
 export { editWorkExperience } from './modules/employment/use-cases/edit-work-experience';
+export { uploadJobOffer } from './modules/employment/use-cases/upload-job-offer';
 export { countEventAttendees } from './modules/event/queries/count-event-attendees';
 export { countPastEvents } from './modules/event/queries/count-past-events';
 export { countUpcomingEvents } from './modules/event/queries/count-upcoming-events';

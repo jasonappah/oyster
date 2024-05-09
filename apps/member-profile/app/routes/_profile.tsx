@@ -1,6 +1,6 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node';
 import { Outlet, useLoaderData } from '@remix-run/react';
-import { Award, Book, Calendar, Folder, Home, User } from 'react-feather';
+import { Award, Briefcase, Calendar, Folder, Home, User } from 'react-feather';
 
 import { Dashboard } from '@oyster/ui';
 
@@ -11,15 +11,15 @@ import { ensureUserAuthenticated } from '@/shared/session.server';
 export async function loader({ request }: LoaderFunctionArgs) {
   await ensureUserAuthenticated(request);
 
-  const isCensusEnabled = await isFeatureFlagEnabled('census_2024');
+  const isCompaniesEnabled = await isFeatureFlagEnabled('companies_page');
 
   return json({
-    isCensusEnabled,
+    isCompaniesEnabled,
   });
 }
 
 export default function ProfileLayout() {
-  const { isCensusEnabled } = useLoaderData<typeof loader>();
+  const { isCompaniesEnabled } = useLoaderData<typeof loader>();
 
   return (
     <Dashboard>
@@ -36,13 +36,6 @@ export default function ProfileLayout() {
               label="Home"
               pathname={Route['/home']}
             />
-            {isCensusEnabled && (
-              <Dashboard.NavigationLink
-                icon={<Book />}
-                label="Census '24"
-                pathname={Route['/census']}
-              />
-            )}
             <Dashboard.NavigationLink
               icon={<Folder />}
               label="Directory"
@@ -58,6 +51,13 @@ export default function ProfileLayout() {
               label="Events"
               pathname={Route['/events']}
             />
+            {isCompaniesEnabled && (
+              <Dashboard.NavigationLink
+                icon={<Briefcase />}
+                label="Companies"
+                pathname={Route['/companies']}
+              />
+            )}
             <Dashboard.NavigationLink
               icon={<User />}
               label="Profile"

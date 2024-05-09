@@ -3,6 +3,8 @@ const ROUTES = [
   '/apply/thank-you',
   '/census',
   '/census/confirmation',
+  '/companies',
+  '/companies/offers/add',
   '/directory',
   '/directory/join',
   '/directory/join/1',

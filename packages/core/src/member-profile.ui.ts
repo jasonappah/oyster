@@ -28,6 +28,7 @@ export {
   FORMATTED_LOCATION_TYPE,
   ListJobOffersWhere,
   LocationType,
+  UploadJobOfferInput,
   WorkExperience,
 } from './modules/employment/employment.types';
 export {
