@@ -55,7 +55,7 @@ export function cache<T>(key: string, schema: z.ZodType<T>) {
       return result.data;
     }
 
-    await redis.del(key);
+    // await redis.del(key);
 
     return null;
   }

@@ -4,16 +4,23 @@ import {
   type LoaderFunctionArgs,
   redirect,
 } from '@remix-run/node';
-import { Form as RemixForm, useActionData } from '@remix-run/react';
+import {
+  Form as RemixForm,
+  useActionData,
+  useLoaderData,
+} from '@remix-run/react';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import { z } from 'zod';
 
+import { getLinkedInProfile } from '@oyster/core/employment.server';
 import {
-  Address,
   Button,
+  Divider,
   Form,
   getErrors,
   Modal,
+  Select,
   validateForm,
 } from '@oyster/ui';
 
@@ -28,9 +35,36 @@ import {
 } from '@/shared/session.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await ensureUserAuthenticated(request);
+  const session = await ensureUserAuthenticated(request);
 
-  return json({});
+  const _profile = await getLinkedInProfile(user(session));
+
+  const profile = {
+    ..._profile,
+    experiences: _profile!.experiences.map((experience) => {
+      return {
+        ...experience,
+        starts_at: dayjs()
+          .year(experience.starts_at.year)
+          .month(experience.starts_at.month)
+          .date(1)
+          .format('YYYY-MM'),
+        ends_at: experience.ends_at
+          ? dayjs()
+              .year(experience.ends_at.year)
+              .month(experience.ends_at.month)
+              .date(1)
+              .format('YYYY-MM')
+          : undefined,
+      };
+    }),
+  };
+
+  console.log(profile);
+
+  return json({
+    profile,
+  });
 }
 
 const AddWorkExperienceFormData = AddWorkExperienceInput.omit({
@@ -87,8 +121,6 @@ export async function action({ request }: ActionFunctionArgs) {
 const keys = AddWorkExperienceFormData.keyof().enum;
 
 export default function AddWorkExperiencePage() {
-  const { error, errors } = getErrors(useActionData<typeof action>());
-
   return (
     <Modal onCloseTo={Route['/profile/work']}>
       <Modal.Header>
@@ -96,56 +128,71 @@ export default function AddWorkExperiencePage() {
         <Modal.CloseButton />
       </Modal.Header>
 
-      <RemixForm className="form" method="post">
-        <WorkForm.Context>
-          <WorkForm.TitleField error={errors.title} name={keys.title} />
+      <AddWorkExperienceForm />
+    </Modal>
+  );
+}
+
+function AddWorkExperienceForm() {
+  const { profile } = useLoaderData<typeof loader>();
+  const { error, errors } = getErrors(useActionData<typeof action>());
+
+  const [experienceIndex, setExperienceIndex] = useState<string>('');
+
+  const experience = experienceIndex
+    ? profile?.experiences[Number(experienceIndex)]
+    : null;
+
+  console.log(experience);
+
+  return (
+    <RemixForm className="form" method="post">
+      <Form.Field
+        description="Please select the experience from your LinkedIn that you'd like to add."
+        label="LinkedIn Experience"
+        labelFor="experience"
+        required
+      >
+        <Select
+          id="experience"
+          name="experience"
+          onChange={(e) => setExperienceIndex(e.currentTarget.value)}
+          required
+        >
+          {profile?.experiences.map((experience, i) => {
+            return (
+              <option key={i} value={i}>
+                {experience.title}, {experience.company}
+              </option>
+            );
+          })}
+        </Select>
+      </Form.Field>
+
+      <Divider />
+
+      {experience && experience.title && (
+        <WorkForm.Context
+          defaultValue={{
+            isCurrentRole: experience.ends_at === null,
+            isOtherCompany: false,
+          }}
+        >
           <WorkForm.EmploymentTypeField
             error={errors.employmentType}
             name={keys.employmentType}
-          />
-          <WorkForm.CompanyField
-            error={errors.companyCrunchbaseId}
-            name={keys.companyCrunchbaseId}
-          />
-          <WorkForm.OtherCompanyField
-            error={errors.companyName}
-            name={keys.companyName}
           />
           <WorkForm.LocationTypeField
             error={errors.locationType}
             name={keys.locationType}
           />
-
-          <Address>
-            <Address.HalfGrid>
-              <WorkForm.CityField
-                error={errors.locationCity}
-                name={keys.locationCity}
-              />
-              <WorkForm.StateField
-                error={errors.locationState}
-                name={keys.locationState}
-              />
-            </Address.HalfGrid>
-          </Address>
-
-          <WorkForm.CurrentRoleField
-            error={errors.isCurrentRole}
-            name={keys.isCurrentRole}
-          />
-          <WorkForm.StartDateField
-            error={errors.startDate}
-            name={keys.startDate}
-          />
-          <WorkForm.EndDateField error={errors.endDate} name={keys.endDate} />
         </WorkForm.Context>
+      )}
 
-        <Form.ErrorMessage>{error}</Form.ErrorMessage>
-
-        <Button.Group>
-          <Button.Submit>Save</Button.Submit>
-        </Button.Group>
-      </RemixForm>
-    </Modal>
+      <Form.ErrorMessage>{error}</Form.ErrorMessage>
+      <Button.Group>
+        <Button.Submit>Save</Button.Submit>
+      </Button.Group>
+    </RemixForm>
   );
 }

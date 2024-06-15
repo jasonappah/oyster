@@ -166,6 +166,13 @@ export const AddWorkExperienceInput = WorkExperience.pick({
   companyCrunchbaseId: Company.shape.crunchbaseId,
 });
 
+export const AddWorkExperienceFromLinkedInInput = WorkExperience.pick({
+  employmentType: true,
+  locationType: true,
+}).extend({
+  experienceIndex: z.coerce.number(),
+});
+
 export const DeleteWorkExperienceInput = WorkExperience.pick({
   id: true,
   studentId: true,
@@ -186,6 +193,9 @@ export const UploadJobOfferInput = JobOffer.omit({
 });
 
 export type AddCompanyReviewInput = z.infer<typeof AddCompanyReviewInput>;
+export type AddWorkExperienceFromLinkedInInput = z.infer<
+  typeof AddWorkExperienceFromLinkedInInput
+>;
 export type AddWorkExperienceInput = z.infer<typeof AddWorkExperienceInput>;
 export type DeleteWorkExperienceInput = z.infer<
   typeof DeleteWorkExperienceInput
