@@ -18,6 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   try {
     const schools = await listSchools({
+      include: ['members'],
       select: ['id', 'name'],
       where: { search },
     });

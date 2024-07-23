@@ -29,16 +29,17 @@ export async function getSchool<
 }
 
 type ListSchoolsOptions<Selection> = {
+  include?: 'members'[];
   select: Selection[];
   where: Pick<ListSearchParams, 'search'>;
 };
 
 export async function listSchools<
   Selection extends SelectExpression<DB, 'schools'>,
->({ select, where }: ListSchoolsOptions<Selection>) {
+>({ include = [], select, where }: ListSchoolsOptions<Selection>) {
   const { search } = where;
 
-  const rows = await db
+  const schools = await db
     .selectFrom('schools')
     .select(select)
     .$if(!!where.search, (qb) => {
@@ -48,13 +49,22 @@ export async function listSchools<
         .orderBy(sql`similarity(name, ${search})`, 'desc')
         .orderBy(sql`word_similarity(name, ${search})`, 'desc');
     })
-    .$if(!where.search, (qb) => {
-      return qb.orderBy('name', 'asc');
+    .$if(!!include.includes('members') || !search, (qb) => {
+      return qb
+        .select((eb) => {
+          return eb
+            .selectFrom('students')
+            .select(eb.fn.countAll<string>().as('count'))
+            .whereRef('students.schoolId', '=', 'schools.id')
+            .as('students');
+        })
+        .orderBy('students', 'desc');
     })
+    .orderBy('name', 'asc')
     .limit(25)
     .execute();
 
-  return rows;
+  return schools;
 }
 
 // Mutations
