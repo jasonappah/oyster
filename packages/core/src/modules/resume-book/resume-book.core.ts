@@ -412,12 +412,17 @@ export async function reviewResume({ file }: ReviewResumeInput) {
     max_tokens: 1000,
     temperature: 0.75,
     system: `
+      You are a hiring manager on a software engineering team. You have been
+      asked to review a resume for a potential candidate. The candidate is
+      applying for either an internship/entry-level software engineering role.
+
       Please provide both positive and constructive feedback on this resume.
       Please use a bullet point format and keep it to a maximum of 3 points. Use
       specific examples from the resume to support your feedback.
 
-      Most candidates are applying to technical roles, so please
-      tailor your feedback to that audience.
+      Most candidates are applying to technical (ie: software engineering,
+      product management, product design) roles, so please tailor your feedback
+      to that audience.
     `,
     messages: [
       {
