@@ -53,6 +53,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.25.0",
     "@aws-sdk/client-s3": "^3.576.0",
     "@aws-sdk/s3-request-presigner": "^3.577.0",
     "@mailchimp/mailchimp_marketing": "^3.0.78",
@@ -72,6 +73,7 @@
     "mixpanel": "^0.18.0",
     "nanoid": "^3.0.0",
     "nodemailer": "^6.9.13",
+    "pdf-parse": "^1.1.1",
     "postmark": "^3.0.15",
     "ua-parser-js": "^1.0.36",
     "zod": "^3.20.2"
@@ -85,6 +87,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/mailchimp__mailchimp_marketing": "^3.0.8",
     "@types/nodemailer": "^6.4.14",
+    "@types/pdf-parse": "^1.1.4",
     "nanoid": "^3.0.0",
     "react": "^18.2.0",
     "tsup": "^6.1.3",

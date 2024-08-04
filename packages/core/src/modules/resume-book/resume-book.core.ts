@@ -1,5 +1,7 @@
+import Anthropic from '@anthropic-ai/sdk';
 import dayjs from 'dayjs';
 import { type SelectExpression } from 'kysely';
+import pdf from 'pdf-parse';
 import { match } from 'ts-pattern';
 
 import { type DB, db, point } from '@oyster/db';
@@ -392,6 +394,40 @@ export async function createResumeBook({
       )
       .execute();
   });
+}
+
+type ReviewResumeInput = {
+  file: File;
+};
+
+export async function reviewResume({ file }: ReviewResumeInput) {
+  const anthropic = new Anthropic();
+
+  const arrayBuffer = await file.arrayBuffer();
+
+  const { text } = await pdf(Buffer.from(arrayBuffer));
+
+  const msg = await anthropic.messages.create({
+    model: 'claude-3-5-sonnet-20240620',
+    max_tokens: 1000,
+    temperature: 0.75,
+    system: `
+      Please provide both positive and constructive feedback on this resume.
+      Please use a bullet point format and keep it to a maximum of 3 points. Use
+      specific examples from the resume to support your feedback.
+
+      Most candidates are applying to technical roles, so please
+      tailor your feedback to that audience.
+    `,
+    messages: [
+      {
+        role: 'user',
+        content: [{ type: 'text', text }],
+      },
+    ],
+  });
+
+  return msg;
 }
 
 export async function updateResumeBook({
